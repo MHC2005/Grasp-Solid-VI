@@ -17,6 +17,11 @@ namespace Full_GRASP_And_SOLID
 
         public string Description { get; set; }
 
+        public override int GetCookTime()
+        {
+            throw new System.NotImplementedException();
+        }
+
         public override double GetStepCost()
         {
             return this.Time;

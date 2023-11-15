@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Full_GRASP_And_SOLID
 {
@@ -15,6 +16,7 @@ namespace Full_GRASP_And_SOLID
         private IList<BaseStep> steps = new List<BaseStep>();
 
         public Product FinalProduct { get; set; }
+        public bool Cooked { get; private set; } = false;
 
         // Agregado por Creator
         public void AddStep(Product input, double quantity, Equipment equipment, int time)
@@ -35,19 +37,24 @@ namespace Full_GRASP_And_SOLID
             this.steps.Remove(step);
         }
 
-        // Agregado por SRP
+
         public string GetTextToPrint()
         {
-            string result = $"Receta de {this.FinalProduct.Description}:\n";
+            if (this.FinalProduct == null)
+            {
+                throw new InvalidOperationException("FinalProduct cannot be null");
+            }
+            StringBuilder result = new StringBuilder($"Receta de {this.FinalProduct.Description}:\n");
             foreach (BaseStep step in this.steps)
             {
-                result = result + step.GetTextToPrint() + "\n";
+                result.AppendLine(step.GetTextToPrint());
             }
 
-            // Agregado por Expert
-            result = result + $"Costo de producción: {this.GetProductionCost()}";
+            result.AppendLine($"Costo de producción: {this.GetProductionCost()}");
+            result.AppendLine($"Tiempo de Cocción: {this.GetCookTime()} minutos");
+            result.AppendLine($"¿Está Cocido?: {this.Cooked}");
 
-            return result;
+            return result.ToString();
         }
 
         // Agregado por Expert
@@ -62,5 +69,43 @@ namespace Full_GRASP_And_SOLID
 
             return result;
         }
+        public int GetCookTime()
+        {
+            int totalCookTime = 0;
+
+            foreach (BaseStep step in this.steps)
+            {
+                // Verificamos si el paso es de tipo Step (que tiene un tiempo)
+                if (step is Step)
+                {
+                    totalCookTime += ((Step)step).Time; // Sumamos el tiempo del Step al total
+                }
+                // Si es de tipo WaitStep, no afecta al tiempo total, ya que es un paso de espera
+            }
+
+            return totalCookTime;
+        }
+
+        public void Cook()
+        {
+            int cookTime = GetCookTime(); // Obtener el tiempo total de cocción
+
+            Cooked = true; // Marcar la receta como cocida
+        }
+        public class RecipeXX : TimerClient
+        {
+            private Recipe recipe;
+            public RecipeXX(Recipe recipe)
+            {
+                this.recipe = recipe;
+            }
+            public void TimeOut()
+            {
+                this.recipe.Cooked = true;
+            }
+        }
+
     }
+
 }
+

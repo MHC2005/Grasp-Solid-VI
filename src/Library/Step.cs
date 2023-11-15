@@ -23,6 +23,11 @@ namespace Full_GRASP_And_SOLID
 
         public Equipment Equipment { get; set; }
 
+        public override int GetCookTime()
+        {
+            throw new System.NotImplementedException();
+        }
+
         // Agregado por Expert
         public override double GetStepCost()
         {
